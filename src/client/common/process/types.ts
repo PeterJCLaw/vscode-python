@@ -16,6 +16,11 @@ export interface IBufferDecoder {
     decode(buffers: Buffer[], encoding: string): string;
 }
 
+export const IBufferEncoder = Symbol('IBufferEncoder');
+export interface IBufferEncoder {
+    encode(text: string, encoding: string): Buffer;
+}
+
 export type Output<T extends string | Buffer> = {
     source: 'stdout' | 'stderr';
     out: T;
