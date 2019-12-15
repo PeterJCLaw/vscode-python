@@ -11,6 +11,7 @@ import { DEFAULT_ENCODING } from './constants';
 import {
     ExecutionResult,
     IBufferDecoder,
+    IBufferEncoder,
     IProcessService,
     ObservableExecutionResult,
     Output,
@@ -22,7 +23,11 @@ import {
 // tslint:disable:no-any
 export class ProcessService extends EventEmitter implements IProcessService {
     private processesToKill = new Set<IDisposable>();
-    constructor(private readonly decoder: IBufferDecoder, private readonly env?: EnvironmentVariables) {
+    constructor(
+        private readonly decoder: IBufferDecoder,
+        private readonly encoder: IBufferEncoder,
+        private readonly env?: EnvironmentVariables
+    ) {
         super();
     }
     public static isAlive(pid: number): boolean {

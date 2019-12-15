@@ -5,6 +5,7 @@ import { SemVer } from 'semver';
 import { ErrorUtils } from '../../client/common/errors/errorUtils';
 import { ModuleNotInstalledError } from '../../client/common/errors/moduleNotInstalledError';
 import { BufferDecoder } from '../../client/common/process/decoder';
+import { BufferEncoder } from '../../client/common/process/encoder';
 import { ProcessService } from '../../client/common/process/proc';
 import {
     ExecutionResult,
@@ -21,7 +22,7 @@ export class MockPythonExecutionService implements IPythonExecutionService {
     private pythonPath : string = 'python';
 
     constructor() {
-        this.procService = new ProcessService(new BufferDecoder());
+        this.procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
     }
     public getInterpreterInformation(): Promise<InterpreterInfomation> {
         return Promise.resolve(

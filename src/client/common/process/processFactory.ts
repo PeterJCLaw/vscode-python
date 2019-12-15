@@ -8,7 +8,13 @@ import { Uri } from 'vscode';
 import { IDisposableRegistry } from '../types';
 import { IEnvironmentVariablesProvider } from '../variables/types';
 import { ProcessService } from './proc';
-import { IBufferDecoder, IProcessLogger, IProcessService, IProcessServiceFactory } from './types';
+import {
+    IBufferDecoder,
+    IBufferEncoder,
+    IProcessLogger,
+    IProcessService,
+    IProcessServiceFactory
+} from './types';
 
 @injectable()
 export class ProcessServiceFactory implements IProcessServiceFactory {
@@ -16,11 +22,12 @@ export class ProcessServiceFactory implements IProcessServiceFactory {
         @inject(IEnvironmentVariablesProvider) private readonly envVarsService: IEnvironmentVariablesProvider,
         @inject(IProcessLogger) private readonly processLogger: IProcessLogger,
         @inject(IBufferDecoder) private readonly decoder: IBufferDecoder,
+        @inject(IBufferEncoder) private readonly encoder: IBufferEncoder,
         @inject(IDisposableRegistry) private readonly disposableRegistry: IDisposableRegistry
     ) {}
     public async create(resource?: Uri): Promise<IProcessService> {
         const customEnvVars = await this.envVarsService.getEnvironmentVariables(resource);
-        const proc: IProcessService = new ProcessService(this.decoder, customEnvVars);
+        const proc: IProcessService = new ProcessService(this.decoder, this.encoder, customEnvVars);
         this.disposableRegistry.push(proc);
         return proc.on('exec', this.processLogger.logProcess.bind(this.processLogger));
     }

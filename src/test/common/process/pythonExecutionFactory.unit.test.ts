@@ -12,6 +12,7 @@ import { PythonSettings } from '../../../client/common/configSettings';
 import { ConfigurationService } from '../../../client/common/configuration/service';
 import { CondaExecutionService } from '../../../client/common/process/condaExecutionService';
 import { BufferDecoder } from '../../../client/common/process/decoder';
+import { BufferEncoder } from '../../../client/common/process/encoder';
 import { ProcessLogger } from '../../../client/common/process/logger';
 import { ProcessServiceFactory } from '../../../client/common/process/processFactory';
 import { PythonDaemonExecutionServicePool } from '../../../client/common/process/pythonDaemonPool';
@@ -20,6 +21,7 @@ import { PythonExecutionService } from '../../../client/common/process/pythonPro
 import {
     ExecutionFactoryCreationOptions,
     IBufferDecoder,
+    IBufferEncoder,
     IProcessLogger,
     IProcessService,
     IProcessServiceFactory,
@@ -75,6 +77,7 @@ suite('Process - PythonExecutionFactory', () => {
             let factory: PythonExecutionFactory;
             let activationHelper: IEnvironmentActivationService;
             let bufferDecoder: IBufferDecoder;
+            let bufferEncoder: IBufferEncoder;
             let processFactory: IProcessServiceFactory;
             let configService: IConfigurationService;
             let condaService: ICondaService;
@@ -84,6 +87,7 @@ suite('Process - PythonExecutionFactory', () => {
             let interpreterService: IInterpreterService;
             setup(() => {
                 bufferDecoder = mock(BufferDecoder);
+                bufferEncoder = mock(BufferEncoder);
                 activationHelper = mock(EnvironmentActivationService);
                 processFactory = mock(ProcessServiceFactory);
                 configService = mock(ConfigurationService);
@@ -103,7 +107,7 @@ suite('Process - PythonExecutionFactory', () => {
                 factory = new PythonExecutionFactory(instance(serviceContainer),
                     instance(activationHelper), instance(processFactory),
                     instance(configService), instance(condaService),
-                    instance(bufferDecoder), instance(windowsStoreInterpreter));
+                    instance(bufferDecoder), instance(bufferEncoder), instance(windowsStoreInterpreter));
             });
             teardown(() => sinon.restore());
             test('Ensure PythonExecutionService is created', async () => {

@@ -12,6 +12,7 @@ import { Range, TextEditorCursorStyle, TextEditorLineNumbersStyle, TextEditorOpt
 import { EXTENSION_ROOT_DIR } from '../../client/common/constants';
 import '../../client/common/extensions';
 import { BufferDecoder } from '../../client/common/process/decoder';
+import { BufferEncoder } from '../../client/common/process/encoder';
 import { ProcessService } from '../../client/common/process/proc';
 import { PythonExecutionFactory } from '../../client/common/process/pythonExecutionFactory';
 import { IProcessLogger, IProcessServiceFactory, IPythonExecutionFactory } from '../../client/common/process/types';
@@ -42,7 +43,7 @@ suite('Refactor Rename', () => {
         configService.setup(c => c.getSettings(typeMoq.It.isAny())).returns(() => pythonSettings.object);
         const condaService = typeMoq.Mock.ofType<ICondaService>();
         const processServiceFactory = typeMoq.Mock.ofType<IProcessServiceFactory>();
-        processServiceFactory.setup(p => p.create(typeMoq.It.isAny())).returns(() => Promise.resolve(new ProcessService(new BufferDecoder())));
+        processServiceFactory.setup(p => p.create(typeMoq.It.isAny())).returns(() => Promise.resolve(new ProcessService(new BufferDecoder(), new BufferEncoder())));
         const interpreterService = typeMoq.Mock.ofType<IInterpreterService>();
         interpreterService.setup(i => i.hasInterpreters).returns (() => Promise.resolve(true));
         const envActivationService = typeMoq.Mock.ofType<IEnvironmentActivationService>();
@@ -64,6 +65,7 @@ suite('Refactor Rename', () => {
                         processServiceFactory.object,
                         configService.object,
                         condaService.object,
+                        undefined as any,
                         undefined as any,
                         instance(windowsStoreInterpreter)
                     )

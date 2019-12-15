@@ -22,6 +22,7 @@ import {
     ExecutionFactoryCreateWithEnvironmentOptions,
     ExecutionFactoryCreationOptions,
     IBufferDecoder,
+    IBufferEncoder,
     IProcessLogger,
     IProcessService,
     IProcessServiceFactory,
@@ -44,6 +45,7 @@ export class PythonExecutionFactory implements IPythonExecutionFactory {
         @inject(IConfigurationService) private readonly configService: IConfigurationService,
         @inject(ICondaService) private readonly condaService: ICondaService,
         @inject(IBufferDecoder) private readonly decoder: IBufferDecoder,
+        @inject(IBufferEncoder) private readonly encoder: IBufferEncoder,
         @inject(WindowsStoreInterpreter) private readonly windowsStoreInterpreter: IWindowsStoreInterpreter
     ) {}
     public async create(options: ExecutionFactoryCreationOptions): Promise<IPythonExecutionService> {
@@ -118,7 +120,7 @@ export class PythonExecutionFactory implements IPythonExecutionFactory {
             return this.create({ resource: options.resource, pythonPath: options.interpreter ? options.interpreter.path : undefined });
         }
         const pythonPath = options.interpreter ? options.interpreter.path : this.configService.getSettings(options.resource).pythonPath;
-        const processService: IProcessService = new ProcessService(this.decoder, { ...envVars });
+        const processService: IProcessService = new ProcessService(this.decoder, this.encoder, { ...envVars });
         const processLogger = this.serviceContainer.get<IProcessLogger>(IProcessLogger);
         processService.on('exec', processLogger.logProcess.bind(processLogger));
         this.serviceContainer.get<IDisposableRegistry>(IDisposableRegistry).push(processService);

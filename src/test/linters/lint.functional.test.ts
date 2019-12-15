@@ -18,11 +18,13 @@ import { Product } from '../../client/common/installer/productInstaller';
 import { FileSystem } from '../../client/common/platform/fileSystem';
 import { PlatformService } from '../../client/common/platform/platformService';
 import { BufferDecoder } from '../../client/common/process/decoder';
+import { BufferEncoder } from '../../client/common/process/encoder';
 import { ProcessServiceFactory } from '../../client/common/process/processFactory';
 import { PythonExecutionFactory } from '../../client/common/process/pythonExecutionFactory';
 import { PythonToolExecutionService } from '../../client/common/process/pythonToolService';
 import {
     IBufferDecoder,
+    IBufferEncoder,
     IProcessLogger,
     IPythonExecutionFactory,
     IPythonToolExecutionService
@@ -247,6 +249,10 @@ class TestFixture extends BaseTestFixture {
         serviceContainer.setup(c => c.get(TypeMoq.It.isValue(IBufferDecoder), TypeMoq.It.isAny()))
             .returns(() => decoder);
 
+        const encoder = new BufferEncoder();
+        serviceContainer.setup(c => c.get(TypeMoq.It.isValue(IBufferEncoder), TypeMoq.It.isAny()))
+            .returns(() => encoder);
+
         const interpreterService = TypeMoq.Mock.ofType<IInterpreterService>(undefined, TypeMoq.MockBehavior.Strict);
         interpreterService.setup(i => i.hasInterpreters).returns(() => Promise.resolve(true));
         serviceContainer.setup(c => c.get(TypeMoq.It.isValue(IInterpreterService), TypeMoq.It.isAny())).returns(() => interpreterService.object);
@@ -262,7 +268,7 @@ class TestFixture extends BaseTestFixture {
             .returns(() => {
                 return;
             });
-        const procServiceFactory = new ProcessServiceFactory(envVarsService.object, processLogger.object, decoder, disposableRegistry);
+        const procServiceFactory = new ProcessServiceFactory(envVarsService.object, processLogger.object, decoder, encoder, disposableRegistry);
         const windowsStoreInterpreter = mock(WindowsStoreInterpreter);
         return new PythonExecutionFactory(
             serviceContainer.object,
@@ -271,6 +277,7 @@ class TestFixture extends BaseTestFixture {
             configService,
             condaService.object,
             decoder,
+            encoder,
             instance(windowsStoreInterpreter)
         );
     }

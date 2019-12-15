@@ -11,7 +11,7 @@ import { EXTENSION_ROOT_DIR } from '../../../client/common/constants';
 import { IFileSystem } from '../../../client/common/platform/types';
 import { PythonExecutionFactory } from '../../../client/common/process/pythonExecutionFactory';
 import { PythonExecutionService } from '../../../client/common/process/pythonProcess';
-import { ExecutionFactoryCreateWithEnvironmentOptions, IBufferDecoder, IProcessServiceFactory, IPythonExecutionFactory, IPythonExecutionService } from '../../../client/common/process/types';
+import { ExecutionFactoryCreateWithEnvironmentOptions, IBufferDecoder, IBufferEncoder, IProcessServiceFactory, IPythonExecutionFactory, IPythonExecutionService } from '../../../client/common/process/types';
 import { IConfigurationService } from '../../../client/common/types';
 import { IEnvironmentActivationService } from '../../../client/interpreter/activation/types';
 import { ICondaService, IInterpreterService } from '../../../client/interpreter/contracts';
@@ -318,8 +318,9 @@ suite('Unit Tests - pytest - run with mocked process output', () => {
             @inject(IConfigurationService) private readonly _configService: IConfigurationService,
             @inject(ICondaService) condaService: ICondaService,
             @inject(WindowsStoreInterpreter) windowsStoreInterpreter: WindowsStoreInterpreter,
-            @inject(IBufferDecoder) decoder: IBufferDecoder) {
-            super(_serviceContainer, activationHelper, processServiceFactory, _configService, condaService, decoder, windowsStoreInterpreter);
+            @inject(IBufferDecoder) decoder: IBufferDecoder,
+            @inject(IBufferEncoder) encoder: IBufferEncoder) {
+            super(_serviceContainer, activationHelper, processServiceFactory, _configService, condaService, decoder, encoder, windowsStoreInterpreter);
         }
         public async createActivatedEnvironment(options: ExecutionFactoryCreateWithEnvironmentOptions): Promise<IPythonExecutionService> {
             const pythonPath = options.interpreter ? options.interpreter.path : this._configService.getSettings(options.resource).pythonPath;

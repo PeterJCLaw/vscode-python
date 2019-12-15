@@ -7,6 +7,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { CancellationTokenSource } from 'vscode';
 import { BufferDecoder } from '../../../client/common/process/decoder';
+import { BufferEncoder } from '../../../client/common/process/encoder';
 import { ProcessService } from '../../../client/common/process/proc';
 import { StdErrError } from '../../../client/common/process/types';
 import { OSType } from '../../../client/common/utils/platform';
@@ -26,7 +27,7 @@ suite('ProcessService Observable', () => {
     teardown(initialize);
 
     test('exec should output print statements', async () => {
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const printOutput = '1234';
         const result = await procService.exec(pythonPath, ['-c', `print("${printOutput}")`]);
 
@@ -43,7 +44,7 @@ suite('ProcessService Observable', () => {
             return this.skip();
         }
 
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const printOutput = 'öä';
         const result = await procService.exec(pythonPath, ['-c', `print("${printOutput}")`]);
 
@@ -55,7 +56,7 @@ suite('ProcessService Observable', () => {
     test('exec should wait for completion of program with new lines', async function () {
         // tslint:disable-next-line:no-invalid-this
         this.timeout(5000);
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const pythonCode = ['import sys', 'import time',
             'print("1")', 'sys.stdout.flush()', 'time.sleep(1)',
             'print("2")', 'sys.stdout.flush()', 'time.sleep(1)',
@@ -72,7 +73,7 @@ suite('ProcessService Observable', () => {
     test('exec should wait for completion of program without new lines', async function () {
         // tslint:disable-next-line:no-invalid-this
         this.timeout(5000);
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const pythonCode = ['import sys', 'import time',
             'sys.stdout.write("1")', 'sys.stdout.flush()', 'time.sleep(1)',
             'sys.stdout.write("2")', 'sys.stdout.flush()', 'time.sleep(1)',
@@ -89,7 +90,7 @@ suite('ProcessService Observable', () => {
     test('exec should end when cancellationToken is cancelled', async function () {
         // tslint:disable-next-line:no-invalid-this
         this.timeout(15000);
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const pythonCode = ['import sys', 'import time',
             'print("1")', 'sys.stdout.flush()', 'time.sleep(10)',
             'print("2")', 'sys.stdout.flush()'];
@@ -107,7 +108,7 @@ suite('ProcessService Observable', () => {
     test('exec should stream stdout and stderr separately', async function () {
         // tslint:disable-next-line:no-invalid-this
         this.timeout(7000);
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const pythonCode = ['import sys', 'import time',
             'print("1")', 'sys.stdout.flush()', 'time.sleep(1)',
             'sys.stderr.write("a")', 'sys.stderr.flush()', 'time.sleep(1)',
@@ -129,7 +130,7 @@ suite('ProcessService Observable', () => {
     test('exec should merge stdout and stderr streams', async function () {
         // tslint:disable-next-line:no-invalid-this
         this.timeout(7000);
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const pythonCode = ['import sys', 'import time',
             'sys.stdout.write("1")', 'sys.stdout.flush()', 'time.sleep(1)',
             'sys.stderr.write("a")', 'sys.stderr.flush()', 'time.sleep(1)',
@@ -146,7 +147,7 @@ suite('ProcessService Observable', () => {
     });
 
     test('exec should throw an error with stderr output', async () => {
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const pythonCode = ['import sys', 'sys.stderr.write("a")', 'sys.stderr.flush()'];
         const result = procService.exec(pythonPath, ['-c', pythonCode.join(';')], { throwOnStdErr: true });
 
@@ -154,21 +155,21 @@ suite('ProcessService Observable', () => {
     });
 
     test('exec should throw an error when spawn file not found', async () => {
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const result = procService.exec(Date.now().toString(), []);
 
         await expect(result).to.eventually.be.rejected.and.to.have.property('code', 'ENOENT', 'Invalid error code');
     });
 
     test('exec should exit without no output', async () => {
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const result = await procService.exec(pythonPath, ['-c', 'import sys', 'sys.exit()']);
 
         expect(result.stdout).equals('', 'stdout is invalid');
         expect(result.stderr).equals(undefined, 'stderr is invalid');
     });
     test('shellExec should be able to run python too', async () => {
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const printOutput = '1234';
         const result = await procService.shellExec(`"${pythonPath}" -c "print('${printOutput}')"`);
 
@@ -177,7 +178,7 @@ suite('ProcessService Observable', () => {
         expect(result.stdout.trim()).to.be.equal(printOutput, 'Invalid output');
     });
     test('shellExec should fail on invalid command', async () => {
-        const procService = new ProcessService(new BufferDecoder());
+        const procService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         const result = procService.shellExec('invalid command');
         await expect(result).to.eventually.be.rejectedWith(Error, 'a', 'Expected error to be thrown');
     });

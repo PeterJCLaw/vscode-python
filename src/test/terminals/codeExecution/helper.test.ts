@@ -21,6 +21,7 @@ import { IServiceContainer } from '../../../client/ioc/types';
 import { CodeExecutionHelper } from '../../../client/terminals/codeExecution/helper';
 import { ICodeExecutionHelper } from '../../../client/terminals/types';
 import { isOs, isPythonVersion, PYTHON_PATH } from '../../common';
+import { BufferEncoder } from '../../../client/common/process/encoder';
 
 const TEST_FILES_PATH = path.join(EXTENSION_ROOT_DIR, 'src', 'test', 'pythonFiles', 'terminalExec');
 
@@ -55,7 +56,7 @@ suite('Terminal - Code Execution Helper', () => {
     });
 
     async function ensureBlankLinesAreRemoved(source: string, expectedSource: string) {
-        const actualProcessService = new ProcessService(new BufferDecoder());
+        const actualProcessService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         pythonService
             .setup(p => p.exec(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns((args, options) => {
@@ -80,7 +81,7 @@ suite('Terminal - Code Execution Helper', () => {
     });
     test('Ensure there are no multiple-CR elements in the normalized code.', async () => {
         const code = ['import sys', '', '', '', 'print(sys.executable)', '', 'print("1234")', '', '', 'print(1)', 'print(2)'];
-        const actualProcessService = new ProcessService(new BufferDecoder());
+        const actualProcessService = new ProcessService(new BufferDecoder(), new BufferEncoder());
         pythonService
             .setup(p => p.exec(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns((args, options) => {
